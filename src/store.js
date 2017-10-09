@@ -4,25 +4,24 @@ import getReduxDevTools from 'utils/getReduxDevTools';
 import rootReducer from 'modules';
 
 const middlewares = [
-  thunkMiddleware,
+	thunkMiddleware,
 ];
 
 export default function configureStore(initialState) {
-  const store = createStore(
-    rootReducer,
-    initialState,
-    compose(applyMiddleware(...middlewares), getReduxDevTools())
-  );
+	const store = createStore(
+		rootReducer,
+		initialState,
+		compose(applyMiddleware(...middlewares), getReduxDevTools())
+	)
 
-  // Enable Webpack hot module replacement for reducers
-  // this will be cut out in production
-  if (module.hot) {
-    module.hot.accept('./modules', () => {
-      const nextRootReducer = require('./modules/index');
+	// Enable Webpack hot module replacement for reducers
+	// this will be cut out in production
+	if (module.hot) {
+		module.hot.accept('./modules', () => {
+			const nextRootReducer = require('./modules/index');
+			store.replaceReducer(nextRootReducer);
+		})
+	}
 
-      store.replaceReducer(nextRootReducer);
-    });
-  }
-
-  return store;
+	return store
 }
