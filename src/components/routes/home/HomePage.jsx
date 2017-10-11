@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { reciveMakes, reciveModels } from '../../../actions'
-import { bindActionCreators } from 'redux'
+import { reciveMakes, reciveModels, changeIsHaveCar } from '../../../actions'
 import Container from 'muicss/lib/react/container'
 import Appbar from 'muicss/lib/react/appbar'
 import Divider from 'muicss/lib/react/divider';
@@ -18,7 +17,8 @@ const mapStateToProps = state => {
 	return {
 		data: {
 			Makes: state.CarsReducer.CarsMakes,
-			Models: state.CarsReducer.CarModels
+			Models: state.CarsReducer.CarModels,
+			Ui: state.UI
 		}
 		
 	}
@@ -30,7 +30,6 @@ class HomePage extends Component {
 	state = {
 		selectedCarMake: null,
 		selectedСarModel: null,
-		isHaveCar: true
 	}
 
 	componentDidMount(){
@@ -53,6 +52,10 @@ class HomePage extends Component {
 		this.setState({
 			selectedСarModel: e,
 			})
+	}
+	ishaveCarChanger = () => {
+		let changeFlag = !this.props.data.Ui.isHaveCar
+		this.props.changeIsHaveCar(changeFlag)
 	}
 
 	render(){
@@ -95,9 +98,9 @@ class HomePage extends Component {
 						<Input hint="Серия и номер паспорта" type="text" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"/>
 					<legend>E-mail</legend>
 						<Input hint="E-mail" type="email"/>
-					<Checkbox name="havecar" label="Наличие авто" checked={this.state.isHaveCar} onChange={()=>this.setState({isHaveCar: !this.state.isHaveCar})}/>
+					<Checkbox name="havecar" label="Наличие авто" checked={this.props.data.Ui.isHaveCar} onChange={this.ishaveCarChanger}/>
 
-					{this.state.isHaveCar && <CarModelList/>}
+					{this.props.data.Ui.isHaveCar && <CarModelList/>}
 
 					<br/>
 
@@ -107,8 +110,9 @@ class HomePage extends Component {
 					<Button variant="raised" className="mui--pull-right">Отправить</Button>
 				</Form>
 				<Divider />
-				<div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-					<pre>{JSON.stringify(this.props.data, null, 2)}</pre>
+				<div style={{ marginTop: '5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+					<pre>The State: {JSON.stringify(this.state, null, 2)}</pre>
+					<pre>The Store: {JSON.stringify(this.props.data, null, 2)}</pre>
 				</div>
 			</Container>
 
@@ -117,7 +121,7 @@ class HomePage extends Component {
 }
 
 
-export default connect(mapStateToProps, { reciveMakes, reciveModels })(HomePage)
+export default connect(mapStateToProps, { reciveMakes, reciveModels, changeIsHaveCar })(HomePage)
 
 
 

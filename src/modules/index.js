@@ -1,6 +1,5 @@
 import { combineReducers } from 'redux'
-import { GET_MAKES, GET_MODELS } from '../actions'
-import { reciveMakes, reciveModels } from '../actions'
+import { GET_MAKES, GET_MODELS, IS_HAVE_CAR } from '../actions'
 
 const initialState = {
 	CarsMakes: [
@@ -38,7 +37,10 @@ const initialState = {
 			"model_name":"Excursion",
 			"model_make_id":"ford"
 		}
-	]
+	],
+	Ui: {
+		isHaveCar: false
+	}
 }
 
 
@@ -53,6 +55,16 @@ export default combineReducers({
 			case GET_MODELS:
 				return {
 					...state, CarModels:(action.payload.data.error) ? state.CarModels : action.payload.data
+				}
+			default: 
+				return state
+		}
+	},
+	UI: function (state = initialState.Ui, action) {
+		switch (action.type) {
+			case IS_HAVE_CAR:
+				return {
+					isHaveCar: action.payload
 				}
 			default: 
 				return state

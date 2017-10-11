@@ -29,3 +29,13 @@ export const reciveModels = (model_make_id) => (dispatch) => {
 const getModels = (payload) => { 
 	return {type: GET_MODELS, payload} 
 }
+
+
+export const IS_HAVE_CAR = 'IS_HAVE_CAR'
+export const changeIsHaveCar = (payload) => { 
+	return {type: IS_HAVE_CAR, payload} 
+}
+
+
+export const SELECT_MAKE = 'SELECT_MAKE'
+export const SELECT_MODEL = 'SELECT_MODEL'
