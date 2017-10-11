@@ -27,6 +27,7 @@
     "axios": "^0.16.2",
     "classnames": "^2.2.5",
     "lodash": "^4.17.4",
+    "muicss": "^0.9.27",
     "normalize.css": "^7.0.0",
     "prop-types": "^15.6.0",
     "ramda": "^0.24.1",
