@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { reciveMakes, reciveModels, changeIsHaveCar } from '../../../actions'
+import { reciveMakes, reciveModels, changeIsHaveCar, selectMakeName, selectModel } from '../../../actions'
 import Container from 'muicss/lib/react/container'
 import Appbar from 'muicss/lib/react/appbar'
 import Divider from 'muicss/lib/react/divider';
@@ -18,65 +18,58 @@ const mapStateToProps = state => {
 		data: {
 			Makes: state.CarsReducer.CarsMakes,
 			Models: state.CarsReducer.CarModels,
-			Ui: state.UI
-		}
-		
+		},
+		Ui: {...state.UI}
 	}
 }
 
 
 class HomePage extends Component {
 
-	state = {
-		selectedCarMake: null,
-		selectedСarModel: null,
-	}
-
 	componentDidMount(){
-		this.props.reciveMakes()
-		
+
 	}
 
-	loadCarModels = () => {
-		//do action => fetch models from api and store it
-	}
-
-	selectCarMake = (e) => {
-		this.setState({
-			selectedCarMake: e,
-			isHaveCar: true
-			})
-		this.props.reciveModels(e)
-	}
-	selectCarModel = (e) => {
-		this.setState({
-			selectedСarModel: e,
-			})
-	}
 	ishaveCarChanger = () => {
-		let changeFlag = !this.props.data.Ui.isHaveCar
-		this.props.changeIsHaveCar(changeFlag)
+		this.props.reciveMakes()
+		this.props.changeIsHaveCar(!this.props.Ui.isHaveCar)
 	}
+
+	getModels = (Make_ID) => {
+		this.props.reciveModels(Make_ID)
+	}
+	storeMakeName = (Make_Name) => {
+		this.props.selectMakeName(Make_Name)
+		this.props.selectModel(false)
+	}
+	onSelectModel = (e) => {
+		this.props.selectModel(e)
+	}
+
+	
 
 	render(){
-		const CarModelList = () => (
-			<Dropdown color="primary" label={ this.state.selectedCarMake || "Марка авто" } onSelect={(e)=>{this.selectCarMake(e)}}>
-				{
-					this.props.data.Makes.map((car)=>
-						<DropdownItem key={car.make_id} value={car.make_id}>{car.make_display}</DropdownItem>
+		const MakesList = () => (
+			<Dropdown color="primary" label={ this.props.Ui.currentMakeName || "Марка авто" } onSelect={(Make_ID)=>this.getModels(Make_ID)}>
+				{ 
+					this.props.data.Makes.map((car, i) =>
+						i<20 &&
+						<DropdownItem key={car.Make_ID} value={car.Make_ID} onClick={()=>this.storeMakeName(car.Make_Name)}>{car.Make_Name}</DropdownItem>
 					)
 				}
 			</Dropdown>
 		)
-		const SelectedCarModelList = () => (
-			<Dropdown color="primary" label={ this.state.selectedСarModel || "Модель авто" } onSelect={(e)=>{this.selectCarModel(e)}}>
+		const ModelList = () => (
+			<Dropdown color="primary" label={ this.props.Ui.currentModel || "Модель авто" } onSelect={(e)=>{this.onSelectModel(e)}}>
 				{
 					this.props.data.Models.map((car)=>
-						<DropdownItem key={`${car.model_make_id}_${car.model_name}`} value={car.model_name}>{car.model_name}</DropdownItem>
+						<DropdownItem key={car.Model_ID} value={car.Model_Name}>{car.Model_Name}</DropdownItem>
 					)
 				}
 			</Dropdown>
 		)
+
+		const DISPLAY_STORE = this.props.data;
 		return (
 			<Container fluid={false}>
 				<Appbar>
@@ -98,21 +91,20 @@ class HomePage extends Component {
 						<Input hint="Серия и номер паспорта" type="text" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"/>
 					<legend>E-mail</legend>
 						<Input hint="E-mail" type="email"/>
-					<Checkbox name="havecar" label="Наличие авто" checked={this.props.data.Ui.isHaveCar} onChange={this.ishaveCarChanger}/>
+					<Checkbox name="havecar" label="Наличие авто" checked={this.props.Ui.isHaveCar} onChange={this.ishaveCarChanger}/>
 
-					{this.props.data.Ui.isHaveCar && <CarModelList/>}
+					{this.props.Ui.isHaveCar && <MakesList/>}
 
 					<br/>
 
-					{this.state.selectedCarMake && <SelectedCarModelList/>}
+					{this.props.Ui.currentMakeName && <ModelList/>}
 
 					<Divider />
 					<Button variant="raised" className="mui--pull-right">Отправить</Button>
 				</Form>
 				<Divider />
 				<div style={{ marginTop: '5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-					<pre>The State: {JSON.stringify(this.state, null, 2)}</pre>
-					<pre>The Store: {JSON.stringify(this.props.data, null, 2)}</pre>
+					<pre>The Store: {JSON.stringify(DISPLAY_STORE, null, 2)}</pre>
 				</div>
 			</Container>
 
@@ -121,7 +113,7 @@ class HomePage extends Component {
 }
 
 
-export default connect(mapStateToProps, { reciveMakes, reciveModels, changeIsHaveCar })(HomePage)
+export default connect(mapStateToProps, { reciveMakes, reciveModels, changeIsHaveCar, selectMakeName, selectModel } )(HomePage)
 
 
 

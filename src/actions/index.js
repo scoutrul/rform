@@ -4,7 +4,7 @@ import axios from 'axios'
 export const GET_MAKES = 'GET_MAKES'
 
 export const reciveMakes = () => (dispatch) => {
-	const result = axios.get("https://www.carqueryapi.com/api/0.3/", { params: {cmd:"getMakes"} })
+	const result = axios.get("https://vpic.nhtsa.dot.gov/api/vehicles/getallmakes", { params: {format:"json"} })
 			.then((response) => {
 				dispatch(getMakes(response))
 			})
@@ -18,8 +18,8 @@ const getMakes = (payload) => {
 
 export const GET_MODELS = 'GET_MODELS'
 
-export const reciveModels = (model_make_id) => (dispatch) => {
-	const result = axios.get("https://www.carqueryapi.com/api/0.3/", { params: {cmd:"getModels", make: model_make_id} })
+export const reciveModels = (make_id) => (dispatch) => {
+	const result = axios.get(`https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeId/${make_id}`, { params: {format:"json"} })
 			.then((response) => {
 				dispatch(getModels(response))
 			})
@@ -37,5 +37,14 @@ export const changeIsHaveCar = (payload) => {
 }
 
 
-export const SELECT_MAKE = 'SELECT_MAKE'
-export const SELECT_MODEL = 'SELECT_MODEL'
+export const IS_SELECTED_MAKE_NAME = 'IS_SELECTED_MAKE_NAME'
+export const selectMakeName = (payload) => { 
+	return {type: IS_SELECTED_MAKE_NAME, payload} 
+}
+
+
+export const IS_SELECTED_MODEL = 'IS_SELECTED_MODEL'
+export const selectModel = (payload) => { 
+	return {type: IS_SELECTED_MODEL, payload} 
+}
+
