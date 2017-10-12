@@ -20,6 +20,7 @@ export default function configureStore(initialState) {
 		module.hot.accept('./modules', () => {
 			const nextRootReducer = require('./modules/index');
 			store.replaceReducer(nextRootReducer)
+			store.replaceReducer(nextRootReducer.default)
 		})
 	}
 
