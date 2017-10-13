@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../../../actions';
 import Container from 'muicss/lib/react/container';
-import Appbar from 'muicss/lib/react/appbar';
 import Divider from 'muicss/lib/react/divider';
 import Form from 'muicss/lib/react/form';
 import Dropdown from 'muicss/lib/react/dropdown';
@@ -12,13 +11,15 @@ import Checkbox from 'muicss/lib/react/checkbox';
 import Radio from 'muicss/lib/react/radio';
 import Button from 'muicss/lib/react/button';
 
+import {InputRus, InputPassport, InputEmail} from './blocks/InputRus'
+
 
 const mapStateToProps = state => ({
-  data: {
+  api: {
     Models: state.CarsReducer.CarModels,
     Makes: state.CarsReducer.CarsMakes,
   },
-  Ui: { ...state.UI },
+  ui: { ...state.UI },
 });
 
 @connect(mapStateToProps, actions)
@@ -29,76 +30,73 @@ export default class HomePage extends Component {
 
  ishaveCarChanger = () => {
    this.props.reciveMakes(); // TD loading status
-   this.props.changeIsHaveCar(!this.props.Ui.isHaveCar);
+   this.props.changeIsHaveCar(!this.props.ui.isHaveCar);
  }
 
- getModels = (Make_ID) => {
+ getModels = Make_ID => {
    this.props.reciveModels(Make_ID);
  }
- storeMakeName = (Make_Name) => {
+ storeMakeName = Make_Name => {
    this.props.selectMakeName(Make_Name);
    this.props.selectModel(false);
  }
- onSelectModel = (e) => {
+ onSelectModel = e => {
    this.props.selectModel(e);
  }
 
+formSuccess = (e) => {
+  e.preventDefault();
+  setTimeout(()=>{
+    console.log('success')
+  },1000)
+}
+
 
  render() {
-   const MakesList = () => (
-     <Dropdown color="primary" label={this.props.Ui.currentMakeName || 'Марка авто'} onSelect={(Make_ID) => this.getModels(Make_ID)}>
+   const MakesList = () =>
+     <Dropdown color="primary" label={this.props.ui.currentMakeName || 'Марка авто'} onSelect={(Make_ID) => this.getModels(Make_ID)}>
        {
-         this.props.data.Makes.map((car, i) =>
+         this.props.api.Makes.map((car, i) =>
            i < 20 &&
            <DropdownItem key={car.Make_ID} value={car.Make_ID} onClick={() => this.storeMakeName(car.Make_Name)}>{car.Make_Name}</DropdownItem>
          )
        }
-     </Dropdown>
-   );
-   const ModelList = () => (
-     <Dropdown color="primary" label={this.props.Ui.currentModel || 'Модель авто'} onSelect={(e) => { this.onSelectModel(e); }}>
+     </Dropdown>;
+
+   const ModelList = () => 
+     <Dropdown color="primary" label={this.props.ui.currentModel || 'Модель авто'} onSelect={(e) => { this.onSelectModel(e); }}>
        {
-         this.props.data.Models.map((car) =>
+         this.props.api.Models.map((car) =>
            <DropdownItem key={car.Model_ID} value={car.Model_Name}>{car.Model_Name}</DropdownItem>
          )
        }
-     </Dropdown>
-   );
+     </Dropdown>;
 
-   const DISPLAY_STORE = this.props.data;
-   const DISPLAY_UI = this.props.Ui;
+   const DISPLAY_STORE = this.props.api;
+   const DISPLAY_UI = this.props.ui;
    return (
      <Container>
-       <Appbar>
-					React validation form
-       </Appbar>
-       <Form>
-         <legend>Фамилия *</legend>
-         <Input hint="Фамилия" required autoFocus />
-         <legend>Имя *</legend>
-         <Input hint="Имя" required />
-         <legend>Отчетство</legend>
-         <Input hint="Отчетство" />
-         <legend>Дата рождения</legend>
-         <Input hint="Дата рождения" type="date" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" />
-         <legend>Пол</legend>
+       <Form onSubmit={this.formSuccess}>
+        <InputRus header="Фамилия *"  autoFocus/>
+        <InputRus header="Имя *" />
+        <InputRus header="Отчетство"/>
+         <Input label="Дата рождения *" type="date" />
          <Radio name="inputGender" label="Мужской" />
          <Radio name="inputGender" label="Женский" />
-         <legend>Серия и номер паспорта</legend>
-         <Input hint="Серия и номер паспорта" type="text" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" />
-         <legend>E-mail</legend>
-         <Input hint="E-mail" type="email" />
-         <Checkbox name="havecar" label="Наличие авто" checked={this.props.Ui.isHaveCar} onChange={this.ishaveCarChanger} />
+         <InputPassport header="Серия и номер паспорта *" required/>
+         <InputEmail header="E-mail *" />
+         <Checkbox name="havecar" label="Наличие авто" checked={this.props.ui.isHaveCar} onChange={this.ishaveCarChanger} />
 
-         {this.props.Ui.isHaveCar && <MakesList />}
+         {this.props.ui.isHaveCar && <MakesList />}
 
          <br />
 
-         {this.props.Ui.currentMakeName && <ModelList />}
+         {this.props.ui.currentMakeName && <ModelList />}
 
          <Divider />
          <Button variant="raised" className="mui--pull-right">Отправить</Button>
        </Form>
+
        <Divider />
        <div style={{ marginTop: '5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
          <pre>The UI Store: {JSON.stringify(DISPLAY_UI, null, 2)}</pre>
@@ -109,3 +107,30 @@ export default class HomePage extends Component {
    );
  }
 }
+
+
+
+
+
+
+// # Тестовое задание React
+// Разработать компонент формы с валидацией и фильтрацией ввода.
+// ## Поля формы:
+// + Фамилия`*` (только русские буквы, фильтрация ввода) 
+// + Имя`*` (только русские буквы, фильтрация ввода) 
+// + Отчество (только русские буквы, фильтрация ввода) 
+// + Дата рождения`*` (старше 18 лет, формат - DD.MM.YYYY) 
+// + Пол`*` 
+// + Серия и номер паспорта`*` (сделать маску дл ввода, только цифры, фильтрация ввода) 
+// + Электронная почта`*` (проверка валидности адреса) 
+// + Наличие автомобиля 
+// + Марка автомобиля (заполняется при наличии автомобиля, выбирается и списка) 
+// + Модель автомобиля (заполняется при наличии автомобиля, зависит от выбранной марки автомобиля, выбирается из списка)
+
+// `*` - обязательно для заполнения
+
+// + Для не валидного поля необходимо подсвечивать поле и выводить сообщение об ошибке.
+
+// После подтверждения данных формы сделать эмуляцию запроса на сервер с помощью таймаута и выводить на экран сообщение о сохранении данных на время таймаута.
+
+// Весь функционал формы (валидация, ввод данных, фильтрация, сабмит) должен выполняться в редьюсере для этой формы с помощью Redux.
