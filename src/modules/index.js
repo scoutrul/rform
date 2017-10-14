@@ -1,23 +1,29 @@
 import { combineReducers } from 'redux'
 import { 
 	GET_MAKES, GET_MODELS, IS_HAVE_CAR, IS_SELECTED_MAKE_NAME, IS_SELECTED_MODEL, 
-	VALID_INPUT_PASSPORT, VALID_INPUT_NAME, VALID_INPUT_SURNAME, VALID_INPUT_PATRONYMIC
+	VALID_INPUT_PASSPORT, VALID_INPUT_NAME, VALID_INPUT_SURNAME, VALID_INPUT_PATRONYMIC, VALID_INPUT_EMAIL,
+	IS_FETCHING, IS_SENDING, IS_SENDING_DONE
 	} from '../actions/'
 
 const initialState = {
 	data: {
+		isLoading: false,
 		CarsMakes: [],
-		CarModels: [],
+		CarModels: []
 	},
 	form: {
+		isSending: false,
 		isHaveCar: false,
 		currentMakeName: null,
 		currentModel: null,
 		passport: null,
 		name: null,
 		surname: null,
-		patronymic: null
-	}
+		patronymic: null,
+		birthdate: null,
+		gender: null,
+		email: null,
+	},
 }
 
 
@@ -27,11 +33,17 @@ export default combineReducers({
 		switch (action.type) {
 			case GET_MAKES:
 				return {
-					...state, CarsMakes: action.payload.data.Results
+					...state, CarsMakes: action.payload.data.Results,
+					isLoading: false
 				}
 			case GET_MODELS:
 				return {
-					...state, CarModels: action.payload.data.Results
+					...state, CarModels: action.payload.data.Results,
+					isLoading: false
+				}
+			case IS_FETCHING:
+				return {
+					...state, isLoading: true
 				}
 			default: 
 				return state
@@ -67,8 +79,21 @@ export default combineReducers({
 				return {
 					...state, patronymic: action.payload
 				}
+			case VALID_INPUT_EMAIL:
+				return {
+					...state, email: action.payload
+				}
+			case IS_SENDING:
+				return {
+					...state, isSending: true
+				}
+			case IS_SENDING_DONE:
+				return {
+					...state, isSending: false
+				}
 			default: 
 				return state
 		}
-	}
+	},
+
 })

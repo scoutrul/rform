@@ -11,15 +11,12 @@ import Checkbox from 'muicss/lib/react/checkbox';
 import Radio from 'muicss/lib/react/radio';
 import Button from 'muicss/lib/react/button';
 
-import { InputRus, InputPassport, InputEmail } from './blocks';
+import { InputRus, InputPassport, InputEmail, LoadingScreen } from './blocks';
 
 
 const mapStateToProps = state => ({
-  api: {
-    Models: state.CarsReducer.CarModels,
-    Makes: state.CarsReducer.CarsMakes,
-  },
-  form: { ...state.FormReducer },
+  CarsReducer: { ...state.CarsReducer },
+  FormReducer: { ...state.FormReducer },
 });
 
 @connect(mapStateToProps, actions)
@@ -30,7 +27,7 @@ export default class HomePage extends Component {
 
  isHaveCarChanger = () => {
    this.props.reciveMakes(); // TD loading status
-   this.props.changeIsHaveCar(!this.props.form.isHaveCar);
+   this.props.changeIsHaveCar(!this.props.FormReducer.isHaveCar);
  }
 
  getModels = Make_ID => {
@@ -44,17 +41,17 @@ export default class HomePage extends Component {
    this.props.selectModel(Model_Name);
  }
 
-formSuccess = (e) => {
+formSubmit = (e) => {
   e.preventDefault();
-    console.log('waiting...');
+    this.props.isSending()
   setTimeout(() => {
-    console.log('success');
-  }, 1000);
+    this.props.isSendingDone()
+  }, 400);
 }
 
 inputValidatePassport = val => {
 	let _value = val.target.value;
-	let execReg = /[^0-9]/g.exec(_value);
+	let execReg = /[^0-9\-]/g.exec(_value);
 	let payload  = () => {
 		return val.target.value = _value.replace(execReg, '')
 	}
@@ -86,13 +83,18 @@ inputValidatePatronymic = e => {
 	this.props.patronymicValid(payload)
 }
 
+inputValidateEmail = e => {
+	let payload = e.target.value 
+	this.props.emailValid(payload)
+}
+
 
 
 render() {
   const MakesList = () =>
-    (<Dropdown color="primary" label={this.props.form.currentMakeName || 'Марка авто'} onSelect={(Make_ID) => this.getModels(Make_ID)}>
+    (<Dropdown color="primary" label={this.props.FormReducer.currentMakeName || 'Марка авто'} onSelect={(Make_ID) => this.getModels(Make_ID)}>
       {
-        this.props.api.Makes.map((car, i) =>
+        this.props.CarsReducer.CarsMakes.map((car, i) =>
           i < 30 &&
           <DropdownItem key={car.Make_ID} value={car.Make_ID} onClick={() => this.storeMakeName(car.Make_Name)}>{car.Make_Name}</DropdownItem>
         )
@@ -100,34 +102,37 @@ render() {
     </Dropdown>);
 
   const ModelList = () =>
-    (<Dropdown color="primary" label={this.props.form.currentModel || 'Модель авто'} onSelect={(e) => { this.onSelectModel(e); }}>
+    (<Dropdown color="primary" label={this.props.FormReducer.currentModel || 'Модель авто'} onSelect={(e) => { this.onSelectModel(e); }}>
       {
-        this.props.api.Models.map((car) =>
+        this.props.CarsReducer.CarsModels.map((car) =>
           <DropdownItem key={car.Model_ID} value={car.Model_Name}>{car.Model_Name}</DropdownItem>
         )
       }
     </Dropdown>);
 
-  const DISPLAY_STORE = this.props.api;
-  const DISPLAY_UI = this.props.form;
+  const DISPLAY_STORE = this.props.CarsReducer;
+  const DISPLAY_UI = this.props.FormReducer;
   return (
+  <div>
+     {(this.props.CarsReducer.isLoading || this.props.FormReducer.isSending ) && <LoadingScreen />}
+
     <Container>
-      <Form onSubmit={this.formSuccess}>
-        <InputRus header="Фамилия *" autoFocus onValidate={this.inputValidateSurname}/>
-        <InputRus header="Имя *"  onValidate={this.inputValidateName}/>
+      <Form onSubmit={this.formSubmit} ref={(e)=> this.form = e}>
+        <InputRus header="Фамилия *" autoFocus onValidate={this.inputValidateSurname} />
+        <InputRus header="Имя *" onValidate={this.inputValidateName} />
         <InputRus header="Отчетство"  onValidate={this.inputValidatePatronymic}/>
         <Input label="Дата рождения *" type="date" />
         <Radio name="inputGender" label="Мужской" />
         <Radio name="inputGender" label="Женский" />
-        <InputPassport header="Серия и номер паспорта *" required onValidate={this.inputValidatePassport}/>
-        <InputEmail header="E-mail *" />
-        <Checkbox name="havecar" label="Наличие авто" checked={this.props.form.isHaveCar} onChange={this.isHaveCarChanger} />
+        <InputPassport header="Серия и номер паспорта *" onValidate={this.inputValidatePassport} />
+        <InputEmail header="E-mail *" onValidate={this.inputValidateEmail} />
+        <Checkbox name="havecar" label="Наличие авто" checked={this.props.FormReducer.isHaveCar} onChange={this.isHaveCarChanger} />
 
-        {this.props.form.isHaveCar && <MakesList />}
+        {this.props.FormReducer.isHaveCar && <MakesList />}
 
         <br />
 
-        {this.props.form.currentMakeName && <ModelList />}
+        {this.props.FormReducer.currentMakeName && <ModelList />}
 
         <Divider />
         <Button variant="raised" className="mui--pull-right">Отправить</Button>
@@ -135,10 +140,10 @@ render() {
 
       <Divider />
       <div style={{ marginTop: '5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <pre>The UI Store: {JSON.stringify(DISPLAY_UI, null, 2)}</pre>
-        <pre>The Store: {JSON.stringify(DISPLAY_STORE, null, 2)}</pre>
+        <pre>The Form Store: {JSON.stringify(DISPLAY_UI, null, 2)}</pre>
       </div>
     </Container>
+    </div>
 
   );
 }
