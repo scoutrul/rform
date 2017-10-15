@@ -12,5 +12,6 @@ export const InputRus = props =>
     title="Только русские буквы"
     floatingLabel
     onChange={props.onValidate}
+    value={props.Value}
   />;
 

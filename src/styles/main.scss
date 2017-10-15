@@ -17,3 +17,11 @@ body {
   color: $color-black;
   font-family: sans-serif;
 }
+
+.storeContainer { 
+	margin-top: 5rem;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+

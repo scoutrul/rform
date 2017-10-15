@@ -9,4 +9,5 @@ export const InputEmail = props =>
 	  required={props.required} 
 	  floatingLabel 
 	  onChange={props.onValidate}
+	  value={props.Value}
   />;
